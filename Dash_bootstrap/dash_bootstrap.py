@@ -38,22 +38,80 @@ app.layout = dbc.Container([
             dcc.Dropdown(id="my-dpdn", multi=False, value="AMZN",
                          options=[{'label': x, "value": x}
                                   for x in sorted(df['Symbols'].unique())]),
-            dcc.Graph(id='line-fig')], width={'size': 5, "offset": 1, 'order': 1}),
+            dcc.Graph(id='line-fig')],  # width={'size': 5, "offset": 1, 'order': 1}
+            xs=12, sm=12, md=12, lg=5, xl=5
+
+        ),
         dbc.Col([
             dcc.Dropdown(id='my-dpdn2', multi=True, value=['PFE', 'FB'],
                          options=[{'label': x, 'value': x}
                                   for x in sorted(df['Symbols'].unique())]),
-            dcc.Graph(id='line-fig2')], width={'size': 5, 'order': 2})
+            dcc.Graph(id='line-fig2')],  # width={'size': 5, 'order': 2}
+            xs=12, sm=12, md=12, lg=5, xl=5
+        )
 
     ]),
 
     dbc.Row([
+        dbc.Col([
+            html.P('Select Company Stock:',
+                   style={'textDecoration': 'underline'}),
+            dcc.Checklist(id='my-checklist', value=['FB', 'GOOGL', 'AMZN'],
+                          options=[{'label': x, "value": x}
+                                   for x in sorted(df['Symbols'].unique())],
+                          labelClassName='mr-3'),
+            dcc.Graph(id='my-hist')
+        ], width={'size': 5, 'offset': 1}),
 
-    ]),
-
-
-
+        dbc.Col([
+            dbc.Card([
+                dbc.CardBody(
+                    html.P("We are better together,help each other out",
+                           className='card-text')
+                ),
+                dbc.CardImg(
+                    src="https://media3.giphy.com/media/sqdHf81hmZHQA/giphy.gif?cid=ecf05e47d6vb4x2vmgk59s0iwwuwerf69taxy9lpix69tjfs&rid=giphy.gif",
+                    bottom=True),
+            ], style={"width": "20rem"})
+        ], width={'size': 3, "offset": 1})
+    ], align='center'),
 ], fluid=True)
+
+# Line chart - Single
+
+
+@app.callback(
+    Output('line-fig', "figure"),
+    Input('my-dpdn', 'value')
+)
+def update_graph(stock_slctd):
+    dff = df[df['Symbols'] == stock_slctd]
+    figIn = px.line(dff, x='Date', y='High')
+    return figIn
+
+
+@app.callback(
+    Output('line-fig2', 'figure'),
+    Input('my-dpdn2', 'value')
+)
+def update_graph2(stocks_slctd):
+    dff = df[df['Symbols'].isin(stocks_slctd)]
+    figIn2 = px.line(dff, x='Date', y='High', color='Symbols')
+    return figIn2
+
+
+@app.callback(
+    Output("my-hist", 'figure'),
+    Input('my-checklist', 'value')
+)
+def update_graph3(stocks_slctd):
+    dff = df[df['Symbols'].isin(stocks_slctd)]
+    dff = dff[dff['Date'] == '2020-12-03']
+    figIn3 = px.histogram(dff, x='Symbols', y='Close')
+    return figIn3
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
+
+# Line chart - Multiple
