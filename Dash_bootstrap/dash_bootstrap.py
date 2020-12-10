@@ -7,3 +7,10 @@ import plotly.express as px
 import pandas as pd
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+app.layout = html.Div(
+    dbc.Button("Success", color="success", className="mr-1")
+)
+
+if __name__ == "__main__":
+    app.run_server()
